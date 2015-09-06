@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Remote Access IoT Data Thru Cloud Computing</title>
+  <link href="css/styles.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="brand">
+    <a href="http://pusher.com">
+      <img class="brand-image"
+        alt="Pusher logo"
+        src="img/pusher.png">
+    </a>
+    <a href="http://openshift.com">
+      <img class="brand-image"
+        alt="OpenShift logo"
+        src="img/openshift.png">
+    </a>
+	<a href="http://twilio.com">
+	<img class="brand-image"
+ 	   alt="Twilio logo"
+	   src="img/twilio2.png">
+    </a>
+  </div>
+  <h1>
+    Access IoT Data Thru Cloud Computing
+  </h1>
+  
+    <h2 align="center" >
+    By Patrick Huang
+  </h2>
+  
+  <!--
+<h2>
+    How to get started
+  </h2>
+  <ul>
+    <li>Sign up for a free Pusher account via <a href="http://pusher.com/signup">http://pusher.com/signup</a></li>
+    <li>Take a note of your application credentials: <code>app_id</code>, <code>app_key</code> and <code>app_secret</code></li>
+    <li>Replace the values in <code>config.json</code> with the credentials</li>
+    <li>Deploy your Pusher application
+      <pre>
+    git add .
+    git commit -m "my first commmit"
+    git push origin master
+      </pre>
+    </li>
+  </ul>
+  <p>
+    Once the above steps have been completed click this button to trigger an event on every web browser with this page open:
+  </p>
+  -->
+  
+  <div class="action">
+    <button id="trigger">Get All Measure</button>
+  </div>
+
+   <p id="timemeasured" align="center" ></p>
+   
+  <div>
+  <div>
+		<svg width="300" height="150">
+			<g transform="translate(160,80)">
+				<circle r="60" stroke="black" fill="white"></circle>
+				<text dx="-30">Temperature
+				<tspan id="temperature" dx="-80" dy="20" ></tspan>						
+				</text>
+			</g>
+		</svg>			
+		<svg width="300" height="150">	
+			<g transform="translate(180,80)">
+				<circle r="60" stroke="black" fill="white"></circle>
+				<text dx="-30">Humidity
+				<tspan id="humidity" dx="-60" dy="20" ></tspan>	
+				</text>
+			</g>
+		</svg>	
+	</div>	
+	<div align="center">		
+		<svg width="600" height="150">	
+			<g transform="translate(300,80)">
+				<circle r="60" stroke="black" fill="white"></circle>
+				<text dx="-30">Lightlevel
+				<tspan id="lightLevel" dx="-55" dy="20" ></tspan>	
+				</text>
+			</g>
+		</svg>	
+	</div>
+	<div>
+		<svg width="300" height="150">	
+			<g transform="translate(180,80)">
+				<circle r="60" stroke="black" fill="white"></circle>
+				<text dx="-30">Altitude
+				<tspan id="altitude" dx="-60" dy="20" ></tspan>					
+				</text>
+			</g>
+		</svg>	
+		
+		<svg width="300" height="150">
+			<g transform="translate(160,80)">
+				<circle r="60" stroke="black" fill="white"></circle>
+				<text dx="-30">Pressure
+				<tspan id="pressure" dx="-70" dy="20" ></tspan>
+				</text>
+			</g>
+		</svg>
+	</div>	
+  </div>
+  
+  <pre id="debug">
+  </pre>
+
+  <p>For more information check out the <a href="https://github.com/pusher/pusher-node-openshift-quickstart">Pusher on OpenShift README</a>.</p>
+  
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+  <script src="//d3dy5gmtp8yhk7.cloudfront.net/2.0/pusher.min.js"></script>
+  <script>
+    // Log debug information to the JavaScript console, if possible
+    Pusher.log = function( msg ) {
+      if( window.console && window.console.log ) {
+        window.console.log( msg );
+      }
+      $( '#debug' ).prepend( "  " + msg + "\n" );
+	  //$( '#debug' ).style.display = "none";
+    };
+
+    // Create new Pusher instance and connect
+    var pusher = new Pusher( "<%= appKey %>" );
+
+    // Subscribe to the channel that the event will be published on
+    var channel = pusher.subscribe( 'homeautomation-channel' );
+
+    // Bind to the event on the channel and handle the event when triggered
+    channel.bind( 'test-event', function( data ) {
+		  // For now, alert the message.
+		  var measure = data.allmeasure.split(/[ ]+/);
+		  //alert( data.message + ' action=>' + data.action);
+		  
+		  ///////////////////////////////////////////////
+		  //alert( measure );
+		  //$('#foo').val('this is some example text');
+		  //$('#bar').val('3');
+
+		  measure.forEach( function(s) { 
+				//... do something with s ...
+				ary = s.split(/[:]+/);
+				if (ary[0] ==='temperature') {
+					//alert(ary[1]);
+					$('#temperature').text(ary[1]);
+				}else if (ary[0] ==='humidity') {
+					$('#humidity').text(ary[1]);
+				}else if (ary[0] ==='lightLevel') {
+					$('#lightLevel').text(ary[1]);
+				}else if (ary[0] ==='altitude') {
+					$('#altitude').text(ary[1]);
+				}else if (ary[0] ==='pressure') {
+					$('#pressure').text(ary[1]);
+				}
+		  });
+		   $('#timemeasured').text( 'Last measured at ' + data.time );
+		 ////////////////////////////////////////////////
+		 
+    } );
+
+    // Listen for click events on the button element
+    $('#trigger').click( function() {
+      // Make AJAX call to invoke the trigger endpoint.
+      // This will broadcast the Hello World message to anybody with the page open.
+      $.get( 'trigger' );
+    } );
+  </script>
+</body>
+</html>
